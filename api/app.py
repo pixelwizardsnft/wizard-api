@@ -1,9 +1,10 @@
 import sqlite3
+#import knowledge
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 
 def connect_to_db():
-    con = sqlite3.connect('tokenKnowledge.db')
+    con = sqlite3.connect('api/tokenKnowledge.db')
     print("connected")
     return con
 
@@ -54,6 +55,10 @@ def get_knowledge_by_token(token):
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
 
+@app.route('/')
+def home():
+    return 'Welcome to the Pixel Wizard "Book of Knowledge"!'
+
 @app.route('/api/knowledge', methods=['GET'])
 def api_get_all_knowledge():
     return jsonify(get_all_knowledge())
@@ -61,8 +66,3 @@ def api_get_all_knowledge():
 @app.route('/api/knowledge/<token>', methods=['GET'])
 def api_get_knowledge(token):
     return jsonify(get_knowledge_by_token(token))
-
-if __name__ == "__main__":
-    #app.debug = True
-    #app.run(debug=True)
-    app.run()
