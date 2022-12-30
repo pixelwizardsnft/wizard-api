@@ -43,8 +43,12 @@ def log_knowledge(message):
     try:
         con = connect_to_db()
         cur = con.cursor()
-        cur.execute(f''' INSERT INTO tokenknowledge (symbol, price, pricehigh, pricelow, changeper, lastupdated) 
-                         VALUES ({symbol}, {price}, {priceHigh}, {priceLow}, {changePer}, {time}); ''')
+        cur.execute(f'''INSERT INTO tokenknowledge (symbol, price, pricehigh, pricelow, changeper, lastupdated) 
+                        VALUES ({symbol}, {price}, {priceHigh}, {priceLow}, {changePer}, {time}) 
+                        ON CONFLICT (symbol)
+                        DO 
+                            UPDATE SET symbol={symbol}, price={price}, pricehigh={priceHigh}, pricelow={priceLow}, changeper={changePer}, lastupdated={time}''')
+        print("Updated: " + symbol)
         con.commit()
         con.close()
     except (Exception, psycopg2.DatabaseError) as error:
