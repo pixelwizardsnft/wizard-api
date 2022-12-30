@@ -4,7 +4,6 @@ from flask_cors import CORS
 import psycopg2
 import psycopg2.extras
 import urllib.parse as up
-import json
 from pycoingecko import CoinGeckoAPI
 
 cg = CoinGeckoAPI()
@@ -26,22 +25,25 @@ def connect_to_db():
 def save_knowledge():
     tokens = "bitcoin,ethereum,stargaze,osmosis,cosmos,terrausd,terra-luna-2,ripple,uniswap,solana,the-sandbox,thorchain,near,mirror-protocol,decentraland,chainlink,internet-computer,polkadot,dogecoin,pancakeswap-token,binancecoin,avalanche-2,arweave,cardano"
     listKnowledge = cg.get_coins_markets(ids=tokens, vs_currency='usd', order='market_cap_desc', price_change_percentage='24h')
-    for knowledge in listKnowledge:
-        jKnowledge = json.dumps(knowledge)
-        log_knowledge(jKnowledge)
+    con = connect_to_db()
 
-def log_knowledge(message):
-    parsed = json.loads(message)
+    for knowledge in listKnowledge:
+        log_knowledge(knowledge, con)
     
-    symbol = "'"+parsed["symbol"].upper()+"'"
-    price = float(parsed["current_price"])
-    priceHigh = float(parsed["high_24h"])
-    priceLow = float(parsed["low_24h"])
-    changePer = float(parsed["price_change_percentage_24h"])
-    time = "'"+parsed["last_updated"]+"'"
+    con.close()
+
+
+def log_knowledge(message, con):
+    
+    symbol = "'"+message["symbol"].upper()+"'"
+    price = float(message["current_price"])
+    priceHigh = float(message["high_24h"])
+    priceLow = float(message["low_24h"])
+    changePer = float(message["price_change_percentage_24h"])
+    time = "'"+message["last_updated"]+"'"
 
     try:
-        con = connect_to_db()
+        #con = connect_to_db()
         cur = con.cursor()
         cur.execute(f'''INSERT INTO tokenknowledge (symbol, price, pricehigh, pricelow, changeper, lastupdated) 
                         VALUES ({symbol}, {price}, {priceHigh}, {priceLow}, {changePer}, {time}) 
@@ -50,24 +52,17 @@ def log_knowledge(message):
                             UPDATE SET symbol={symbol}, price={price}, pricehigh={priceHigh}, pricelow={priceLow}, changeper={changePer}, lastupdated={time}''')
         print("Updated: " + symbol)
         con.commit()
-        con.close()
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)
-    finally:
-        if con is not None:
-            con.close()
 
 ### API FUNCTIONS
 def get_all_knowledge():
     allknowledge = []
     try:
         con = connect_to_db()
-        print("connected")
         cur = con.cursor(cursor_factory=psycopg2.extras.DictCursor)
         cur.execute("SELECT * FROM tokenknowledge")
         rows = cur.fetchall()
-
-        print(rows)
 
         for i in rows:
             knowledge = {}
