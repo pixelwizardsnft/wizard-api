@@ -1,13 +1,15 @@
 from decouple import config
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, abort
 from flask_cors import CORS
 import psycopg2
 import psycopg2.extras
 import urllib.parse as up
 from pycoingecko import CoinGeckoAPI
+from functools import wraps
 
 cg = CoinGeckoAPI()
 DATABASE_URL = config('DATABASE_URL')
+API_KEY = config('API_KEY')
 
 ### BASE FUNCTIONS
 def connect_to_db():
@@ -98,6 +100,17 @@ def get_knowledge_by_token(token):
     
     return knowledge
 
+### DECORATORS
+def require_apikey(view_function):
+    @wraps(view_function)
+    # the new, post-decoration function. Note *args and **kwargs here.
+    def decorated_function(*args, **kwargs):
+        if request.headers.get('X-Api-Key') and request.headers.get('X-Api-Key') == API_KEY:
+            return view_function(*args, **kwargs)
+        else:
+            abort(401)
+    return decorated_function
+
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
 
@@ -105,15 +118,16 @@ CORS(app, resources={r"/*": {"origins": "*"}})
 def home():
     return 'Welcome to the Pixel Wizard "Book of Knowledge"!'
 
-@app.route('/api/v1/knowledge', methods=['GET'])
+@app.route('/v1/knowledge', methods=['GET'])
 def api_get_all_knowledge():
     return jsonify(get_all_knowledge())
 
-@app.route('/api/v1/knowledge/<token>', methods=['GET'])
+@app.route('/v1/knowledge/<token>', methods=['GET'])
 def api_get_knowledge(token):
     return jsonify(get_knowledge_by_token(token))
 
-@app.route('/api/v1/updateKnowledge', methods=['GET', 'POST'])
+@app.route('/v1/updateKnowledge', methods=['GET', 'POST'])
+@require_apikey
 def api_update_knowledge():
     save_knowledge()
-    return 'OK', 200
+    return jsonify(success=True)
