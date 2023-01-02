@@ -1,5 +1,5 @@
 from decouple import config
-from flask import Flask, request, jsonify, abort
+from flask import Flask, request, jsonify, abort, render_template
 from flask_cors import CORS
 import psycopg2
 import psycopg2.extras
@@ -116,7 +116,7 @@ CORS(app, resources={r"/*": {"origins": "*"}})
 
 @app.route('/')
 def home():
-    return 'Welcome to the Pixel Wizard "Book of Knowledge"!'
+    return render_template('index.html')
 
 @app.route('/v1/knowledge', methods=['GET'])
 def api_get_all_knowledge():
