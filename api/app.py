@@ -131,3 +131,6 @@ def api_get_knowledge(token):
 def api_update_knowledge():
     save_knowledge()
     return jsonify(success=True)
+
+def create_app():
+   return app
