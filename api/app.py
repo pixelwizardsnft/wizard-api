@@ -25,7 +25,7 @@ def connect_to_db():
     return con
 
 def save_knowledge():
-    tokens = "bitcoin,ethereum,stargaze,osmosis,cosmos,terrausd,terra-luna-2,ripple,uniswap,solana,the-sandbox,thorchain,near,mirror-protocol,decentraland,chainlink,internet-computer,polkadot,dogecoin,pancakeswap-token,binancecoin,avalanche-2,arweave,cardano"
+    tokens = "bitcoin,ethereum,stargaze,osmosis,cosmos,terrausd,terra-luna-2,ripple,uniswap,solana,the-sandbox,thorchain,near,mirror-protocol,decentraland,chainlink,internet-computer,polkadot,dogecoin,pancakeswap-token,binancecoin,avalanche-2,arweave,cardano,akash-network,algorand,arbitrum,axelar,canto,sentinel,magic,matic-network,mantadao,omniflix-network,fantom,harrypotterobamasonic10in,hedera-hashgraph,immutable-x,injective-protocol,stride,blockstack,kadena,kujira,lido-dao,pepe,render-token,secret,usd-coin,tezos"
     listKnowledge = cg.get_coins_markets(ids=tokens, vs_currency='usd', order='market_cap_desc', price_change_percentage='24h')
     con = connect_to_db()
 
