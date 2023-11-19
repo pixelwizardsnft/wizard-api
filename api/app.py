@@ -46,6 +46,8 @@ def log_knowledge(message, con):
 
     try:
         #con = connect_to_db()
+        if symbol == "ETHDYDX":
+            symbol = "DYDX"
         cur = con.cursor()
         cur.execute(f'''INSERT INTO tokenknowledge (symbol, price, pricehigh, pricelow, changeper, lastupdated) 
                         VALUES ({symbol}, {price}, {priceHigh}, {priceLow}, {changePer}, {time}) 
