@@ -36,30 +36,37 @@ def save_knowledge():
 
 
 def log_knowledge(message, con):
-    
-    symbol = "'"+message["symbol"].upper()+"'"
+    symbol = f"'{message['symbol'].upper()}'"
     price = float(message["current_price"])
     priceHigh = float(message["high_24h"])
     priceLow = float(message["low_24h"])
     changePer = float(message["price_change_percentage_24h"])
-    time = "'"+message["last_updated"]+"'"
+    time = f"'{message['last_updated']}'"
+
+    if symbol == "'ETHDYDX'":
+        symbol = "'DYDX'"
+    if symbol == "'RENDER'":
+        symbol = "'RNDR'"
 
     try:
-        if symbol == "'ETHDYDX'":
-            symbol = "'DYDX'"
-        if symbol == "'RENDER'":
-            symbol = "'RNDR'"
-            
-        cur = con.cursor()
-        cur.execute(f'''INSERT INTO tokenknowledge (symbol, price, pricehigh, pricelow, changeper, lastupdated) 
-                        VALUES ({symbol}, {price}, {priceHigh}, {priceLow}, {changePer}, {time}) 
-                        ON CONFLICT (symbol)
-                        DO 
-                            UPDATE SET symbol={symbol}, price={price}, pricehigh={priceHigh}, pricelow={priceLow}, changeper={changePer}, lastupdated={time}''')
-        print("Updated: " + symbol)
-        con.commit()
-    except (Exception, psycopg2.DatabaseError) as error:
-        print(error)
+        with con.cursor() as cur:
+            query = f'''
+            INSERT INTO tokenknowledge (symbol, price, pricehigh, pricelow, changeper, lastupdated)
+            VALUES ({symbol}, {price}, {priceHigh}, {priceLow}, {changePer}, {time})
+            ON CONFLICT (symbol)
+            DO UPDATE SET
+                price = EXCLUDED.price,
+                pricehigh = EXCLUDED.pricehigh,
+                pricelow = EXCLUDED.pricelow,
+                changeper = EXCLUDED.changeper,
+                lastupdated = EXCLUDED.lastupdated;
+            '''
+            cur.execute(query)
+            con.commit()
+            print(f"Updated: {symbol}")
+    except psycopg2.Error as error:
+        print(f"Error updating {symbol}: {error}")
+        con.rollback() 
 
 ### API FUNCTIONS
 def get_all_knowledge():
