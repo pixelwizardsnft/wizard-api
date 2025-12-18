@@ -27,10 +27,10 @@ def save_knowledge():
 
 def log_knowledge(message, con):
     symbol = f"'{message['symbol'].upper()}'"
-    price = float(message["current_price"])
-    priceHigh = float(message["high_24h"])
-    priceLow = float(message["low_24h"])
-    changePer = float(message["price_change_percentage_24h"])
+    price = float(message["current_price"] or 0)
+    priceHigh = float(message["high_24h"] or 0)
+    priceLow = float(message["low_24h"] or 0)
+    changePer = float(message["price_change_percentage_24h"] or 0)
     time = f"'{message['last_updated']}'"
 
     if symbol == "'ETHDYDX'":
