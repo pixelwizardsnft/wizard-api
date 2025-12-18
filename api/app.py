@@ -3,7 +3,6 @@ from flask import Flask, request, jsonify, abort, render_template
 from flask_cors import CORS
 import psycopg2
 import psycopg2.extras
-import urllib.parse as up
 from pycoingecko import CoinGeckoAPI
 from functools import wraps
 
@@ -13,16 +12,7 @@ API_KEY = config('API_KEY')
 
 ### BASE FUNCTIONS
 def connect_to_db():
-    con = None
-    up.uses_netloc.append("postgres")
-    url = up.urlparse(DATABASE_URL)
-    con = psycopg2.connect(database=url.path[1:],
-        user=url.username,
-        password=url.password,
-        host=url.hostname,
-        port=url.port
-    )
-    return con
+    return psycopg2.connect(DATABASE_URL)
 
 def save_knowledge():
     tokens = "bitcoin,ethereum,stargaze,osmosis,cosmos,terrausd,terra-luna-2,ripple,uniswap,solana,the-sandbox,thorchain,near,mirror-protocol,decentraland,chainlink,internet-computer,polkadot,dogecoin,pancakeswap-token,binancecoin,avalanche-2,arweave,cardano,akash-network,algorand,arbitrum,axelar,canto,sentinel,magic,matic-network,mantadao,omniflix-network,fantom,harrypotterobamasonic10in,hedera-hashgraph,immutable-x,injective-protocol,stride,blockstack,kadena,kujira,lido-dao,pepe,render-token,secret,usd-coin,tezos,celestia,dydx,dymension,archway"
